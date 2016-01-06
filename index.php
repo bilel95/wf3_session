@@ -1,3 +1,8 @@
+<?php
+	session_start();
+?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,8 +16,22 @@
 	<div class="container">
 		<div class="row">
 
+			<?php if(isset($_SESSION['message'])) : ?>
+				<div class="alert alert-info">
+					<?php echo $_SESSION['message'];?>
+					<?php unset($_SESSION['message']);?>
+				</div>
+			<?php endif;?>
+
 			<div class="col-md-6">
 				<h1>Register</h1>
+
+					<?php if(isset($_SESSION['registerErrors'])):?>
+						<!-- Affiche les erreurs stockées en session avec la clé registerErrors -->
+						<?php print_r($_SESSION['registerErrors']);?>
+						<!-- Supprime les erreurs après les avoir affichées une fois -->
+						<?php unset($_SESSION['registerErrors']);?>
+					<?php endif; ?>
 				<!-- Copié de bootstrap -->
 				<form method="POST" action="registerHandler.php">
 

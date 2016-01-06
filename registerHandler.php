@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 require(__DIR__.'/config/pdo.php');
 
 // je vérifie que le submit a été clické 
@@ -65,7 +65,31 @@ require(__DIR__.'/config/pdo.php');
 
 			// Hash du password pour la sécurité
 			$hashedPassword = password_hash($password,PASSWORD_DEFAULT);
-			echo $hashedPassword;
+			$query->bindValue('password',$hashedPassword,PDO::PARAM_STR);
+			$query->execute();
+
+			if($query->rowCount()>0){
+				// Récupération de l'utilisateur depuis la bdd
+				// pour l'affecter à une variable de session
+				$query = $pdo->prepare('SELECT * FROM users WHERE id = :id ');
+				$query->bindValue(':id',$pdo->lastInsertId(),PDO::PARAM_INT);
+				$query->execute();
+				$resultUser = $query->fetch();
+
+				// On stock le user en session et on retire le password avant (pas très grave)
+				unset($resultUser['password']);
+				$_SESSION['user']=$resultUser;
+
+				// On redirige l'utilisateur vers la page protégée qui est profile.php
+				header('location:profile.php');
+				die();
+
+			}
+		} else {
+			// On stocke toute les erreurs en session
+			$_SESSION['registerErrors'] = $errors;
+			header('location:index.php');
+			die();
 		}
 
 	} 
